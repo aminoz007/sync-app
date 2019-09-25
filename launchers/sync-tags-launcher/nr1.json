@@ -1,0 +1,7 @@
+{
+    "schemaType": "LAUNCHER",
+    "id": "sync-tags-launcher",
+    "description": "An application to get your EC2 tags and sync them with your APM applications labels",
+    "displayName": "Sync APM-EC2 Tags",
+    "rootNerdletId": "sync-tags-nerdlet"
+}
