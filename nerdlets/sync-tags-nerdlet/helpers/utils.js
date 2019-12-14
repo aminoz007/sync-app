@@ -1,11 +1,12 @@
-const getTagValue = (entity, key) => {
+// It is important to know that for each EC2 instance each tag key can have only one value:
+// Check tag restrictions here: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html
+// NR Tags however can have multiple values for the same key
 
+const getHostTagValue = (entity, key) => {
     return entity.tags.find(tag => tag.key === key).values[0];
-
 }
 
 const formatData = (hosts) => {
-
   const presentationData = {
     header:{
       accounts: [],
@@ -21,14 +22,13 @@ const formatData = (hosts) => {
     },
     details:[]
   }
-
   // Details
   const details = hosts.map(host => {
                     const info = {accountId:host.accountId, name:host.name, guid:host.guid};
                     const ec2Tags = {};
                     host.tags.forEach(tag => {
                         if(tag.key.startsWith('label.')) {
-                            ec2Tags[tag.key.replace('label.','')] = tag.values[0];
+                            ec2Tags[tag.key.replace('label.','')] = tag.values[0];  // EC2 instance can have only 1 value for each key
                         } else if(tag.key==='account' || tag.key==='aws.awsRegion' || tag.key==='aws.awsAvailabilityZone' || tag.key==='aws.ec2SubnetId'){
                             info[tag.key] = tag.values[0];
                         }
@@ -40,7 +40,7 @@ const formatData = (hosts) => {
                       delete appObj.tags;
                       appObj['tags'] = {};
                       app.tags.forEach(t => {
-                        appObj.tags[t.key] = t.values[0];
+                        appObj.tags[t.key] = t.values; // Changed here
                       })
                       appObj['isInSync'] = checkSync(info.tags, appObj.tags);
                       appObj['checked'] = false;
@@ -49,12 +49,10 @@ const formatData = (hosts) => {
                     return info;
                   });
   presentationData.details = details;
-
   // Header
   presentationData.header = getHeader(details);            
-  
   // Summary
-  presentationData.summary = getSummary(details);                 
+  presentationData.summary = getSummary(details); 
 
   return presentationData;
 }
@@ -103,7 +101,7 @@ const filterData = (data, filters) => {
 
 const checkSync = (hostTags, appTags) => { 
   // 'every' method will stop when the test doesn't pass and throw false
-  const inSync = Object.keys(hostTags).every(hTagKey => appTags.hasOwnProperty(hTagKey) && appTags[hTagKey] === hostTags[hTagKey])
+  const inSync = Object.keys(hostTags).every(hTagKey => appTags.hasOwnProperty(hTagKey) && appTags[hTagKey].includes(hostTags[hTagKey])); //Changed here
   return inSync;
 }
 
@@ -118,4 +116,4 @@ const updateAllCheckedFlags = (data, value) => { // value True or False
   });
 }
 
-export { getTagValue, formatData, filterData, updateAllCheckedFlags };
+export { getHostTagValue, formatData, filterData, updateAllCheckedFlags };

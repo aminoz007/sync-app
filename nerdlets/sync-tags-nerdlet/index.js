@@ -2,7 +2,7 @@ import React from 'react';
 import { NerdGraphQuery } from 'nr1';
 import Cards from './components/cards';
 import { EC2_HOSTS_WITH_APPS, fetchApps } from './helpers/queries';
-import { getTagValue, formatData } from './helpers/utils';
+import { getHostTagValue, formatData } from './helpers/utils';
 import { Loader, Header } from 'semantic-ui-react';
 
 export default class SyncTags extends React.Component {
@@ -79,7 +79,7 @@ export default class SyncTags extends React.Component {
         const uniqueQ = [];
         entities.forEach(host => {
             host['apmApps']=[];
-            const appNames = getTagValue(host, 'apmApplicationNames').split('|').filter(val=>val);
+            const appNames = getHostTagValue(host, 'apmApplicationNames').split('|').filter(val=>val);
             appNames.forEach(appName => {
                 const query = fetchApps(appName, host.accountId);
                 if(!uniqueQ.includes(query)) {
@@ -92,7 +92,7 @@ export default class SyncTags extends React.Component {
             values.forEach(value => {
                 let service = value.data.actor.entitySearch.results.entities[0]; // We get always 1 entity giving the account Id and the app name
                 entities.forEach(host => {
-                    const appNames = getTagValue(host, 'apmApplicationNames').split('|').filter(val=>val);
+                    const appNames = getHostTagValue(host, 'apmApplicationNames').split('|').filter(val=>val);
                     appNames.forEach(appName => {
                         if (host.accountId === service.accountId && appName === service.name) {
                             host['apmApps'].push(service);

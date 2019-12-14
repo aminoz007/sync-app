@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Label, Icon, Menu, Divider, Header, Dropdown, Grid, Checkbox, GridRow, Loader } from 'semantic-ui-react';
+import { Card, Label, Icon, Menu, Divider, Header, Dropdown, Grid, Checkbox, GridRow, Loader, Modal, Button } from 'semantic-ui-react';
 import { navigation, Toast } from 'nr1';
 import { filterData, updateAllCheckedFlags } from '../helpers/utils';
 import Summary from './summary';
@@ -18,7 +18,8 @@ export default class Cards extends React.Component {
             selectedApps: [],
             showHelpMsg: false,
             showSyncMsg: false,
-            isUpdating: false
+            isUpdating: false,
+            isUpdateComplete: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.onActionSelect = this.onActionSelect.bind(this);
@@ -133,11 +134,18 @@ export default class Cards extends React.Component {
         if(this.state.showSyncMsg) {
             this.setState({showSyncMsg:false});
         }
+        if(this.state.isUpdateComplete) {
+            this.setState({isUpdateComplete:false});
+            // TODO refresh the data
+        }
     }
 
-    updateTags() {
+    async updateTags() {
         this.setState({showSyncMsg: false, isUpdating: true});
-        console.log('Mutation goes here')
+        setTimeout(() => {
+            console.log('Mutation goes here');
+            this.setState({isUpdating:false, isUpdateComplete:true}); // in the mutation callback or after await
+          }, 3000);
     }
 
     render() {
@@ -154,7 +162,25 @@ export default class Cards extends React.Component {
                     sync={this.state.showSyncMsg} 
                     nbApps={this.state.selectedApps.length}
                     onClose={this.modalHandler} 
-                    onUpdate={this.updateTags}/>
+                    onUpdate={this.updateTags}
+                />
+                <Modal size='tiny' open={this.state.isUpdateComplete} onClose={this.modalHandler}>
+                <Modal.Header>Tags Update Completed</Modal.Header>
+                <Modal.Content>
+                    <p>We updated your services! Please note that it might take a couple of minutes before being able to see the changes.
+                        We will refresh the data after closing this popup.
+                    </p>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button
+                    positive
+                    icon='checkmark'
+                    labelPosition='right'
+                    content='OK'
+                    onClick={this.modalHandler}
+                    />
+                </Modal.Actions>
+                </Modal>
                 <div style={{margin:"40px"}}>
                     <Grid columns='equal' style={{margin:"40px 40px 0px 40px"}}>
                         <Grid.Row>
@@ -249,7 +275,7 @@ export default class Cards extends React.Component {
                             <Card.Description>
                             {Object.keys(host.tags).map((key,i) => 
                                 <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag color='teal'>
-                                    {`${key}:${host.tags[key]}`}
+                                    {`${key}: ${host.tags[key]}`}
                                 </Label>
                             )}
                             </Card.Description>
@@ -269,7 +295,7 @@ export default class Cards extends React.Component {
                                     <Card.Description>
                                     {Object.keys(apmApp.tags).map((key,i) => 
                                         <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag color='blue'>
-                                            {`${key}:${apmApp.tags[key]}`}
+                                            {`${key}: ${apmApp.tags[key]}`}
                                         </Label>
                                     )}
                                     </Card.Description>
