@@ -1,8 +1,9 @@
 import React from 'react';
-import { Card, Label, Icon, Menu, Divider, Header, Dropdown, Grid, Checkbox, Button, Loader, GridRow } from 'semantic-ui-react';
-import { navigation } from 'nr1';
+import { Card, Label, Icon, Menu, Divider, Header, Dropdown, Grid, Checkbox, GridRow, Loader } from 'semantic-ui-react';
+import { navigation, Toast } from 'nr1';
 import { filterData, updateAllCheckedFlags } from '../helpers/utils';
 import Summary from './summary';
+import ModalMsg from './modalMsg';
 
 export default class Cards extends React.Component {
 
@@ -14,10 +15,15 @@ export default class Cards extends React.Component {
                 syncedDataOnly: false,
                 notSyncedDataOnly:false
             },
-            selectedApps: []
+            selectedApps: [],
+            showHelpMsg: false,
+            showSyncMsg: false,
+            isUpdating: false
         };
         this.handleChange = this.handleChange.bind(this);
         this.onActionSelect = this.onActionSelect.bind(this);
+        this.modalHandler = this.modalHandler.bind(this);
+        this.updateTags = this.updateTags.bind(this);
     }
 
     openEntity(guid){
@@ -50,7 +56,7 @@ export default class Cards extends React.Component {
             const app = host.apmApps[appIndex];
             app.checked = false;
             const selectedApps = this.state.selectedApps.filter(sel => sel.appGuid !== app.guid);
-            console.log(selectedApps)
+            console.log(selectedApps);
             host.apmApps.splice(appIndex,1,app);
             entities.details.splice(hostIndex,1,host);
             this.setState({presentationData:entities, selectedApps}, () => console.log(this.state.selectedApps));
@@ -72,7 +78,15 @@ export default class Cards extends React.Component {
     onActionSelect(e, props) {
         const entities = this.state.presentationData;
         if(props.value === 'sync') {
-            //TODO Mutation goes here and create Modal before
+            if(this.state.selectedApps.length){
+                this.setState({showSyncMsg:true});
+            } else {
+                Toast.showToast({
+                    title: 'Nothing to sync',
+                    description: 'Please Select at least 1 application!!',
+                    type: Toast.TYPE.CRITICAL
+                })
+            }
         } else if(props.value === 'selectAll') {
             let allApps = entities.details.map(host => host.apmApps.map(app => ({appGuid: app.guid, appTags: app.tags, hostTags: host.tags}))).flat();
             // Remove duplicates
@@ -84,7 +98,7 @@ export default class Cards extends React.Component {
             updateAllCheckedFlags(entities, false);
             this.setState({selectedApps: [], presentationData:entities},() => {console.log(this.state.selectedApps);console.log(this.state.presentationData)});
         } else if(props.value === 'help') {
-            // TODO Modal with details  
+            this.setState({showHelpMsg:true});
         }
     }
 
@@ -112,9 +126,36 @@ export default class Cards extends React.Component {
       );
     }
 
+    modalHandler() {
+        if(this.state.showHelpMsg) {
+            this.setState({showHelpMsg:false});
+        }
+        if(this.state.showSyncMsg) {
+            this.setState({showSyncMsg:false});
+        }
+    }
+
+    updateTags() {
+        this.setState({showSyncMsg: false, isUpdating: true});
+        console.log('Mutation goes here')
+    }
+
     render() {
         const { header, summary, details } = this.state.presentationData;
-            return ( <div style={{margin:"40px"}}>
+            if(this.state.isUpdating) {
+                return (
+                    <Loader active size='large'>Updating services tags, this might take a while...</Loader>
+                );
+            }
+            return ( 
+                <>
+                <ModalMsg 
+                    help={this.state.showHelpMsg} 
+                    sync={this.state.showSyncMsg} 
+                    nbApps={this.state.selectedApps.length}
+                    onClose={this.modalHandler} 
+                    onUpdate={this.updateTags}/>
+                <div style={{margin:"40px"}}>
                     <Grid columns='equal' style={{margin:"40px 40px 0px 40px"}}>
                         <Grid.Row>
                             <Grid.Column>
@@ -239,6 +280,7 @@ export default class Cards extends React.Component {
                     )}
                 </Card.Group>
             </div>
+            </>
         );
         }
 }
