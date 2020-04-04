@@ -1,9 +1,12 @@
 import React from 'react';
-import { Card, Label, Icon, Menu, Divider, Header, Dropdown, Grid, Checkbox, GridRow, Loader, Modal, Button } from 'semantic-ui-react';
-import { navigation, Toast } from 'nr1';
+import { Loader } from 'semantic-ui-react';
+import { Toast, NerdGraphQuery } from 'nr1';
 import { filterData, updateAllCheckedFlags } from '../helpers/utils';
 import Summary from './summary';
 import ModalMsg from './modalMsg';
+import Filters from './filters';
+import Details from './details';
+import { addTags } from '../helpers/tagsMutation';
 
 export default class Cards extends React.Component {
 
@@ -21,22 +24,14 @@ export default class Cards extends React.Component {
             isUpdating: false,
             isUpdateComplete: false
         };
-        this.handleChange = this.handleChange.bind(this);
+        this.filterChange = this.filterChange.bind(this);
         this.onActionSelect = this.onActionSelect.bind(this);
         this.modalHandler = this.modalHandler.bind(this);
         this.updateTags = this.updateTags.bind(this);
     }
 
-    openEntity(guid){
-        navigation.openStackedEntity(guid)
-    }
-
-    transformToDropdown(values) {
-        const newValues = [...new Set(values)]
-        return  newValues.map(val => {return {key: val, text: val, value: val}})
-    }
-
-    onAppSelect(hostIndex,appIndex,e) {
+    onAppSelect = (hostIndex,appIndex,e) => {
+        console.log(e);
         if(e.target.checked) {
             const entities = this.state.presentationData;
             const selectedApps = this.state.selectedApps;
@@ -67,16 +62,18 @@ export default class Cards extends React.Component {
         console.log(appIndex);
     }
 
-    handleChange(e,props) {
+    filterChange(e,props) {
         const data = this.props.data;
         const filters = this.state.filters;
         filters[props.name] = props.value || props.checked;
+        console.log(filters);
+        console.log(props);
         const filteredData = filterData(data, filters);
         updateAllCheckedFlags(filteredData, false);
         this.setState({presentationData:filteredData, filters, selectedApps:[]});
     }
 
-    onActionSelect(e, props) {
+    onActionSelect(e,props) {
         const entities = this.state.presentationData;
         if(props.value === 'sync') {
             if(this.state.selectedApps.length){
@@ -103,30 +100,6 @@ export default class Cards extends React.Component {
         }
     }
 
-    actionsDropdown() {
-        const options = [
-            { key: 'sync', icon: 'sync', text: 'Sync Your Applications Tags', value: 'sync' },
-            { key: 'selectAll', icon: 'add', text: 'Select All Apps', value: 'selectAll' },
-            { key: 'deselectAll', icon: 'delete', text: 'Deselect All Apps', value: 'deselectAll' },
-            { key: 'help', icon: 'help', text: 'Help', value: 'help' },
-        ];
-      return ( 
-        <Dropdown
-        icon='cog'
-        floating
-        button
-        className='icon'
-      >
-        <Dropdown.Menu>
-          <Dropdown.Header content='Choose Your Action' />
-          {options.map((option) => (
-            <Dropdown.Item key={option.value} {...option} onClick={this.onActionSelect}/>
-          ))}
-        </Dropdown.Menu>
-      </Dropdown>
-      );
-    }
-
     modalHandler() {
         if(this.state.showHelpMsg) {
             this.setState({showHelpMsg:false});
@@ -140,12 +113,13 @@ export default class Cards extends React.Component {
         }
     }
 
-    async updateTags() {
-        this.setState({showSyncMsg: false, isUpdating: true});
-        setTimeout(() => {
-            console.log('Mutation goes here');
-            this.setState({isUpdating:false, isUpdateComplete:true}); // in the mutation callback or after await
-          }, 3000);
+    updateTags() {
+        //this.setState({showSyncMsg: false, isUpdating: true}); PUT BACKKK
+        this.setState({showSyncMsg: false});
+        //setTimeout(() => {
+            console.log('Mutation goes here'); 
+            //addTags();
+          //}, 3000);
     }
 
     render() {
@@ -155,158 +129,30 @@ export default class Cards extends React.Component {
                     <Loader active size='large'>Updating services tags, this might take a while...</Loader>
                 );
             }
-            return ( 
-                <>
+        return ( 
+            <div style={{margin:"40px"}}>
                 <ModalMsg 
                     help={this.state.showHelpMsg} 
                     sync={this.state.showSyncMsg} 
+                    refresh={this.state.isUpdateComplete}
                     nbApps={this.state.selectedApps.length}
                     onClose={this.modalHandler} 
                     onUpdate={this.updateTags}
                 />
-                <Modal size='tiny' open={this.state.isUpdateComplete} onClose={this.modalHandler}>
-                <Modal.Header>Tags Update Completed</Modal.Header>
-                <Modal.Content>
-                    <p>We updated your services! Please note that it might take a couple of minutes before being able to see the changes.
-                        We will refresh the data after closing this popup.
-                    </p>
-                </Modal.Content>
-                <Modal.Actions>
-                    <Button
-                    positive
-                    icon='checkmark'
-                    labelPosition='right'
-                    content='OK'
-                    onClick={this.modalHandler}
-                    />
-                </Modal.Actions>
-                </Modal>
-                <div style={{margin:"40px"}}>
-                    <Grid columns='equal' style={{margin:"40px 40px 0px 40px"}}>
-                        <Grid.Row>
-                            <Grid.Column>
-                                <Dropdown
-                                placeholder='NR Account'
-                                name='account'
-                                fluid
-                                multiple
-                                search
-                                selection
-                                onChange={this.handleChange}
-                                options={this.transformToDropdown(header.accounts)}
-                                />
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Dropdown
-                                placeholder='AWS Region'
-                                name='aws.awsRegion'
-                                fluid
-                                multiple
-                                search
-                                selection
-                                onChange={this.handleChange}
-                                options={this.transformToDropdown(header.awsRegions)}
-                                />
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Dropdown
-                                placeholder='AWS Availability Zone'
-                                name='aws.awsAvailabilityZone'
-                                fluid
-                                multiple
-                                search
-                                selection
-                                onChange={this.handleChange}
-                                options={this.transformToDropdown(header.awsAZs)}
-                                />
-                            </Grid.Column>
-                            <Grid.Column>
-                                <Dropdown
-                                placeholder='AWS Subnet'
-                                name='aws.ec2SubnetId'
-                                fluid
-                                multiple
-                                search
-                                selection
-                                onChange={this.handleChange}
-                                options={this.transformToDropdown(header.awsSubnets)}
-                                />
-                            </Grid.Column>
-                        </Grid.Row>
-                        <GridRow style={{justifyContent: 'flex-end'}}>
-                        <Menu secondary style={{marginBottom:"50px",marginTop:"0px"}}>
-                        <Menu.Menu position='right'>
-                        <Menu.Item>
-                            <Checkbox label='Show data in sync only' name='syncedDataOnly' toggle onChange={this.handleChange} />
-                        </Menu.Item>
-                        <Menu.Item>
-                            <Checkbox label='Show data not in sync only' name ='notSyncedDataOnly' toggle onChange={this.handleChange} />
-                        </Menu.Item>
-                        <Menu.Item>
-                            {this.actionsDropdown()}
-                        </Menu.Item>
-                        </Menu.Menu>
-                    </Menu>
-                        </GridRow>
-                    </Grid>
-                    
-                <Divider horizontal>
-                <Header as='h4'>
-                    <Icon name='clipboard check' />
-                    Summary
-                </Header>
-                </Divider>
-                <Summary data={summary}/>
-                <Divider horizontal>
-                <Header as='h4'>
-                    <Icon name='eye' />
-                    Details
-                </Header>
-                </Divider>
-                <Card.Group>
-                    {details.map((host,i) => 
-                        <Card key={i} style={{marginRight:"20px"}}>
-                        <Card.Content style={{position:'relative'}}>
-                            <div style={{display:'flex',justifyContent:'space-between'}}>
-                            <Card.Header>{host.name}</Card.Header>
-                            <Icon link name='server' onClick={() => this.openEntity(host.guid)}/>
-                            </div>
-                            <Card.Meta style={{marginBottom:"15px"}}>{host.account}</Card.Meta>
-                            <Card.Description>
-                            {Object.keys(host.tags).map((key,i) => 
-                                <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag color='teal'>
-                                    {`${key}: ${host.tags[key]}`}
-                                </Label>
-                            )}
-                            </Card.Description>
-                        </Card.Content>
-                        {
-                            host.apmApps.map((apmApp,j) => 
-                                <Card.Content key={j}>
-                                    {apmApp.isInSync ? 
-                                        <Label color='green' style={{marginBottom:"15px"}} ribbon>Tags are in sync</Label> :
-                                        <Label color='red' style={{marginBottom:"15px"}} ribbon>Tags are not in sync</Label>
-                                    }
-                                    <input style={{position:'absolute', right:'15px'}} type="checkbox" checked={apmApp.checked} onChange={(e) => this.onAppSelect(i,j,e)} />
-                                    <div style={{display:'flex',justifyContent:'space-between'}}>
-                                    <Card.Header>{apmApp.name}</Card.Header>
-                                    <Icon link name='sitemap' onClick={() => this.openEntity(apmApp.guid)}/>
-                                    </div>
-                                    <Card.Description>
-                                    {Object.keys(apmApp.tags).map((key,i) => 
-                                        <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag color='blue'>
-                                            {`${key}: ${apmApp.tags[key]}`}
-                                        </Label>
-                                    )}
-                                    </Card.Description>
-                                </Card.Content>
-                            )
-                        }
-                        </Card>
-                    )}
-                </Card.Group>
+                
+                <Filters 
+                    data={header}
+                    onChange={this.filterChange}
+                    onActionClick={this.onActionSelect}
+                />
+                <Summary 
+                    data={summary}
+                />
+                <Details 
+                    data={details}
+                    onAppSelect={this.onAppSelect}
+                />
             </div>
-            </>
         );
-        }
+    }
 }

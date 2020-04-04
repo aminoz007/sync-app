@@ -21,7 +21,7 @@ const formatData = (hosts) => {
       nbServicesNotInSync: 0,
     },
     details:[]
-  }
+  };
   // Details
   const details = hosts.map(host => {
                     const info = {accountId:host.accountId, name:host.name, guid:host.guid};
@@ -34,13 +34,12 @@ const formatData = (hosts) => {
                         }
                     })
                     info['tags'] = ec2Tags;
-
                     info['apmApps'] = host.apmApps.map(app => {
                       const appObj = Object.assign({}, app);
                       delete appObj.tags;
                       appObj['tags'] = {};
                       app.tags.forEach(t => {
-                        appObj.tags[t.key] = t.values; // Changed here
+                        appObj.tags[t.key] = t.values;
                       })
                       appObj['isInSync'] = checkSync(info.tags, appObj.tags);
                       appObj['checked'] = false;
@@ -53,7 +52,6 @@ const formatData = (hosts) => {
   presentationData.header = getHeader(details);            
   // Summary
   presentationData.summary = getSummary(details); 
-
   return presentationData;
 }
 
@@ -82,7 +80,7 @@ const filterData = (data, filters) => {
   const { syncedDataOnly, notSyncedDataOnly, ...subsetFilters } = filters;
   // Let's filter using giving dropdown values
   let filteredData = [];
-  Object.keys(subsetFilters).forEach((key) => (subsetFilters[key].length === 0) && delete subsetFilters[key]); // remove empty filters
+  Object.keys(subsetFilters).forEach((key) => (subsetFilters[key].length === 0) && delete subsetFilters[key]); // removing empty filters
   if (subsetFilters) {
     filteredData = data.details.filter(ele => Object.keys(subsetFilters).every(key => subsetFilters[key].includes(ele[key])));
   } else {
@@ -101,7 +99,7 @@ const filterData = (data, filters) => {
 
 const checkSync = (hostTags, appTags) => { 
   // 'every' method will stop when the test doesn't pass and throw false
-  const inSync = Object.keys(hostTags).every(hTagKey => appTags.hasOwnProperty(hTagKey) && appTags[hTagKey].includes(hostTags[hTagKey])); //Changed here
+  const inSync = Object.keys(hostTags).every(hTagKey => appTags.hasOwnProperty(hTagKey) && appTags[hTagKey].includes(hostTags[hTagKey]));
   return inSync;
 }
 

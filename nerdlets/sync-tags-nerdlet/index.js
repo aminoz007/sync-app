@@ -14,6 +14,7 @@ export default class SyncTags extends React.Component {
             loadError: false,
             hosts: null
         }
+        this.refreshData = this.refreshData.bind(this);
     }
 
     async componentDidMount() {

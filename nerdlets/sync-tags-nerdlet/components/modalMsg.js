@@ -59,7 +59,6 @@ export default class ModalMsg extends React.Component {
                     </Modal.Actions>
                 </Modal>
 
-
                 <Modal
                     open={this.props.sync}
                     onClose={this.props.onClose}
@@ -77,6 +76,28 @@ export default class ModalMsg extends React.Component {
                         <Button positive onClick={this.props.onUpdate}>Update</Button>
                     </Button.Group>
                     </Modal.Actions>
+                </Modal>
+
+                <Modal 
+                    size='tiny' 
+                    open={this.props.refresh} 
+                    onClose={this.props.onClose}
+                >
+                <Modal.Header>Tags Update Completed</Modal.Header>
+                <Modal.Content>
+                    <p>We updated your services! Please note that it might take a couple of minutes before being able to see the changes.
+                        We will refresh the data after closing this popup.
+                    </p>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button
+                    positive
+                    icon='checkmark'
+                    labelPosition='right'
+                    content='OK'
+                    onClick={this.props.onClose}
+                    />
+                </Modal.Actions>
                 </Modal>
             </>
         )

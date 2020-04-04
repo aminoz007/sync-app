@@ -45,5 +45,18 @@ const fetchApps = (appName, accountId) => {
     `;
 }
 
+// Add Tags Mutation
+const addTagsMutation = (guid, tagsArray) => {
+return `
+    mutation {
+        taggingAddTagsToEntity(guid: "${guid}", tags: ${tagsArray}) {
+        errors {
+            message
+            type
+        }
+        }
+    }
+    `;
+}
 
-  export  { EC2_HOSTS_WITH_APPS, fetchApps }
+  export  { EC2_HOSTS_WITH_APPS, fetchApps, addTagsMutation }
