@@ -1,3 +1,4 @@
+import gql from 'graphql-tag';
 
 // Get all running EC2 instances where APM agents are deployed
 const EC2_HOSTS_WITH_APPS = `
@@ -46,17 +47,14 @@ const fetchApps = (appName, accountId) => {
 }
 
 // Add Tags Mutation
-const addTagsMutation = (guid, tagsArray) => {
-return `
-    mutation {
-        taggingAddTagsToEntity(guid: "${guid}", tags: ${tagsArray}) {
+const TAGS_MUTATION = gql`
+mutation($guid: EntityGuid! , $tags: [TaggingTagInput!]!) {
+    taggingAddTagsToEntity(guid: $guid, tags: $tags) {
         errors {
             message
-            type
-        }
         }
     }
-    `;
 }
+`;
 
-  export  { EC2_HOSTS_WITH_APPS, fetchApps, addTagsMutation }
+  export  { EC2_HOSTS_WITH_APPS, fetchApps, TAGS_MUTATION }

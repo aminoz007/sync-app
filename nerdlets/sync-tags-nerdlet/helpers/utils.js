@@ -16,7 +16,8 @@ const formatData = (hosts) => {
     },
     summary:{
       nbEc2: 0,
-      nbServices: 0,
+      nbUniqueServices: 0,
+      nbServicesInstances: 0,
       nbServicesInSync: 0,
       nbServicesNotInSync: 0,
     },
@@ -65,14 +66,15 @@ const getHeader = (data) => {
 
 const getSummary = (data) => {
   const nbEc2 = data.length;
-  let nbServices = data.map(host => host.apmApps.map(app => app.guid)).flat();
-  nbServices = [...new Set(nbServices)].length;
+  const servicesGuids = data.map(host => host.apmApps.map(app => app.guid)).flat();
+  const nbServicesInstances = servicesGuids.length;
+  const nbUniqueServices = [...new Set(servicesGuids)].length;
   const nbServicesInSync = data.reduce((acc, host) => {
     host.apmApps.forEach(app => app.isInSync && acc++);
     return acc;
   },0);
-  const nbServicesNotInSync = nbServices - nbServicesInSync;
-  return { nbEc2, nbServices, nbServicesInSync, nbServicesNotInSync };
+  const nbServicesNotInSync = nbServicesInstances - nbServicesInSync;
+  return { nbEc2, nbUniqueServices, nbServicesInstances, nbServicesInSync, nbServicesNotInSync };
 }
 
 const filterData = (data, filters) => {

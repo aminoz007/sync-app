@@ -8,6 +8,8 @@
     "test": "exit 0"
   },
   "dependencies": {
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.3",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",

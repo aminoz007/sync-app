@@ -27,7 +27,7 @@ export default class Details extends React.Component {
                         <Card key={i} style={{marginRight:"20px"}}>
                         <Card.Content style={{position:'relative'}}>
                             <div style={{display:'flex',justifyContent:'space-between'}}>
-                            <Card.Header>{host.name}</Card.Header>
+                            <Card.Header><strong>Host: </strong>{host.name}</Card.Header>
                             <Icon link name='server' onClick={() => this.openEntity(host.guid)}/>
                             </div>
                             <Card.Meta style={{marginBottom:"15px"}}>{host.account}</Card.Meta>
@@ -42,12 +42,12 @@ export default class Details extends React.Component {
                         {host.apmApps.map((apmApp,j) => 
                                 <Card.Content key={j}>
                                     {apmApp.isInSync ? 
-                                        <Label color='green' style={{marginBottom:"15px"}} ribbon>Tags are in sync</Label> :
-                                        <Label color='red' style={{marginBottom:"15px"}} ribbon>Tags are not in sync</Label>
+                                        <Label color='green' style={{marginBottom:"15px"}} ribbon>All AWS Tags are in NR</Label> :
+                                        <Label color='red' style={{marginBottom:"15px"}} ribbon>All AWS Tags are not in NR</Label>
                                     }
                                     <input style={{position:'absolute', right:'15px'}} type="checkbox" checked={apmApp.checked} onChange={(e) => this.props.onAppSelect(i,j,e)} />
                                     <div style={{display:'flex',justifyContent:'space-between'}}>
-                                    <Card.Header>{apmApp.name}</Card.Header>
+                                    <Card.Header><strong>Application: </strong>{apmApp.name}</Card.Header>
                                     <Icon link name='sitemap' onClick={() => this.openEntity(apmApp.guid)}/>
                                     </div>
                                     <Card.Description>

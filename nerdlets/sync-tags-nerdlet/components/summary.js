@@ -19,25 +19,31 @@ export default class Summary extends React.Component {
                 </Divider>
                 <Menu compact style={{marginBottom:"40px", marginTop:"25px"}}>
                     <Menu.Item>
-                        <Icon name='server' /> Number of running EC2 with APM services
+                        <Icon name='server' /> Number of running EC2 containing APM services
                         <Label color='teal' floating>
                             {data.nbEc2}
                         </Label>
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon name='sitemap' /> Number of services deployed in EC2
+                        <Icon name='sitemap' /> Number of unique services deployed in EC2
                         <Label color='blue' floating>
-                            {data.nbServices}
+                            {data.nbUniqueServices}
                         </Label>
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon name='tag' /> Number of apps labels not in sync
+                        <Icon name='sitemap' /> Number of services instances deployed in EC2
+                        <Label color='yellow' floating>
+                            {data.nbServicesInstances}
+                        </Label>
+                    </Menu.Item>
+                    <Menu.Item>
+                        <Icon name='tag' /> Number of apps with missing EC2 tags
                         <Label color='red' floating>
                             {data.nbServicesNotInSync}
                         </Label>
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon name='tag' /> Number of apps labels in sync
+                        <Icon name='tag' /> Number of apps having all EC2 tags
                         <Label color='green' floating>
                             {data.nbServicesInSync}
                         </Label>

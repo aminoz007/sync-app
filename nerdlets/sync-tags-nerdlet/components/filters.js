@@ -72,10 +72,10 @@ export default class Filters extends React.Component {
                 <Menu secondary style={{marginBottom:"30px",marginTop:"0px"}}>
                 <Menu.Menu position='right'>
                 <Menu.Item>
-                    <Checkbox label='Show data in sync only' name='syncedDataOnly' toggle onChange={this.props.onChange} />
+                    <Checkbox label='Show only entities in sync' name='syncedDataOnly' toggle onChange={this.props.onChange} />
                 </Menu.Item>
                 <Menu.Item>
-                    <Checkbox label='Show data not in sync only' name ='notSyncedDataOnly' toggle onChange={this.props.onChange} />
+                    <Checkbox label='Show only entities not in sync' name ='notSyncedDataOnly' toggle onChange={this.props.onChange} />
                 </Menu.Item>
                 <Menu.Item>
                     {this.actionsDropdown()}

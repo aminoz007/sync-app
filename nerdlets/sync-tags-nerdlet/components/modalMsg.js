@@ -85,7 +85,7 @@ export default class ModalMsg extends React.Component {
                 >
                 <Modal.Header>Tags Update Completed</Modal.Header>
                 <Modal.Content>
-                    <p>We updated your services! Please note that it might take a couple of minutes before being able to see the changes.
+                    <p>Update completed! Please note that it might take some time before being able to see the changes.
                         We will refresh the data after closing this popup.
                     </p>
                 </Modal.Content>
