@@ -37,13 +37,13 @@ export default class Summary extends React.Component {
                         </Label>
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon name='tag' /> Number of apps with missing EC2 tags
+                        <Icon name='tag' /> Number of app instances with missing EC2 tags
                         <Label color='red' floating>
                             {data.nbServicesNotInSync}
                         </Label>
                     </Menu.Item>
                     <Menu.Item>
-                        <Icon name='tag' /> Number of apps having all EC2 tags
+                        <Icon name='tag' /> Number of app instances having all EC2 tags
                         <Label color='green' floating>
                             {data.nbServicesInSync}
                         </Label>

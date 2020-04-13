@@ -1,7 +1,7 @@
 {
     "schemaType": "LAUNCHER",
     "id": "sync-tags-launcher",
-    "description": "An application to get your EC2 tags and sync them with your APM applications labels",
-    "displayName": "Tags Syncer",
+    "description": "An application to import AWS EC2 tags to New Relic",
+    "displayName": "AWS Tags Syncer",
     "rootNerdletId": "sync-tags-nerdlet"
 }

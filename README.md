@@ -1,4 +1,5 @@
-# @REPO@
+# AWS TAGS SYNCER
+Application to import automatically AWS tags to New Relic.
 
 ## Getting started
 

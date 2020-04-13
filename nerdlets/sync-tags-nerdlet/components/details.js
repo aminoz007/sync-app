@@ -33,7 +33,7 @@ export default class Details extends React.Component {
                             <Card.Meta style={{marginBottom:"15px"}}>{host.account}</Card.Meta>
                             <Card.Description>
                             {Object.keys(host.tags).map((key,i) => 
-                                <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag color='teal'>
+                                <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag >
                                     {`${key}: ${host.tags[key]}`}
                                 </Label>
                             )}
@@ -42,17 +42,17 @@ export default class Details extends React.Component {
                         {host.apmApps.map((apmApp,j) => 
                                 <Card.Content key={j}>
                                     {apmApp.isInSync ? 
-                                        <Label color='green' style={{marginBottom:"15px"}} ribbon>All AWS Tags are in NR</Label> :
-                                        <Label color='red' style={{marginBottom:"15px"}} ribbon>All AWS Tags are not in NR</Label>
+                                        <Label color='green' style={{marginBottom:"15px"}} ribbon>AWS Tags are in NR</Label> :
+                                        <Label color='red' style={{marginBottom:"15px"}} ribbon>AWS Tags are not in NR</Label>
                                     }
                                     <input style={{position:'absolute', right:'15px'}} type="checkbox" checked={apmApp.checked} onChange={(e) => this.props.onAppSelect(i,j,e)} />
                                     <div style={{display:'flex',justifyContent:'space-between'}}>
-                                    <Card.Header><strong>Application: </strong>{apmApp.name}</Card.Header>
+                                    <Card.Header style={{marginBottom:"15px"}}><strong>Application: </strong>{apmApp.name}</Card.Header>
                                     <Icon link name='sitemap' onClick={() => this.openEntity(apmApp.guid)}/>
                                     </div>
                                     <Card.Description>
                                     {Object.keys(apmApp.tags).map((key,i) => 
-                                        <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag color='blue'>
+                                        <Label key={i} style={{margin:"5px", fontSize:"10px"}} tag >
                                             {`${key}: ${apmApp.tags[key]}`}
                                         </Label>
                                     )}

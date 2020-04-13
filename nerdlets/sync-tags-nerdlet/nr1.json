@@ -1,6 +1,6 @@
 {
     "schemaType": "NERDLET",
     "id": "sync-tags-nerdlet",
-    "description": "An application to get your EC2 tags and sync them with your APM applications labels",
-    "displayName": "Sync Labels and Tags "
+    "description": "An application to import AWS EC2 tags to New Relic",
+    "displayName": "Sync AWS Tags "
 }
