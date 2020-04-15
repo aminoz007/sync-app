@@ -1,6 +1,8 @@
 # AWS TAGS SYNCER
 Application to import automatically AWS tags to New Relic.
 
+Please use instead [big-accounts](https://github.com/aminoz007/sync-app/tree/big-accounts) branch if you have too many EC2 instances with APM services.
+
 ## Getting started
 
 Run the following scripts:
