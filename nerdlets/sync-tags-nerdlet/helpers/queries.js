@@ -1,27 +1,29 @@
 import gql from 'graphql-tag';
 
 // Get all running EC2 instances where APM agents are deployed
-const EC2_HOSTS_WITH_APPS = `
-query($queryCursor: String) {
-    actor {
-        entitySearch(query: "domain='INFRA' AND type='HOST' AND tags.aws.ec2State='running' AND tags.apmApplicationIds like '%'") {
-            results(cursor: $queryCursor) {
-                entities {
-                    tags {
-                      key
-                      values
+const fetchHosts = (accountId) => {
+    return `
+    query($queryCursor: String) {
+        actor {
+            entitySearch(query: "domain='INFRA' AND type='HOST' AND tags.aws.ec2State='running' AND tags.apmApplicationIds like '%' and accountId='${accountId}'") {
+                results(cursor: $queryCursor) {
+                    entities {
+                        tags {
+                        key
+                        values
+                        }
+                        name
+                        accountId
+                        guid
                     }
-                    name
-                    accountId
-                    guid
+                    nextCursor
                 }
-                nextCursor
+                count
             }
-            count
         }
     }
+    `;
 }
-`;
 
 // Get application tags 
 const fetchApps = (appName, accountId) => {
@@ -57,4 +59,4 @@ mutation($guid: EntityGuid! , $tags: [TaggingTagInput!]!) {
 }
 `;
 
-  export  { EC2_HOSTS_WITH_APPS, fetchApps, TAGS_MUTATION }
+  export  { fetchHosts, fetchApps, TAGS_MUTATION }

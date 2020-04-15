@@ -1,8 +1,8 @@
 import React from 'react';
-import { EC2_HOSTS_WITH_APPS, fetchApps } from './helpers/queries';
+import { fetchHosts, fetchApps } from './helpers/queries';
 import { getHostTagValue, formatData } from './helpers/utils';
-import { Loader, Header } from 'semantic-ui-react';
-import { Toast, NerdGraphQuery } from 'nr1';
+import { Loader, Header, Dropdown } from 'semantic-ui-react';
+import { Toast, NerdGraphQuery, AccountsQuery } from 'nr1';
 import { filterData, updateAllCheckedFlags } from './helpers/utils';
 import Summary from './components/summary';
 import ModalMsg from './components/modalMsg';
@@ -19,6 +19,8 @@ export default class SyncTags extends React.Component {
             loadError: false,
             hosts: null,
             presentationData: null,
+            accounts: [],
+            accountId: null,
             filters: {
                 syncedDataOnly: false,
                 notSyncedDataOnly:false
@@ -33,19 +35,16 @@ export default class SyncTags extends React.Component {
         this.onActionSelect = this.onActionSelect.bind(this);
         this.modalHandler = this.modalHandler.bind(this);
         this.updateTags = this.updateTags.bind(this);
+        this.onAccountSelect = this.onAccountSelect.bind(this);
     }
 
     async componentDidMount() {
-        await this.loadData();
-        /* eslint-disable no-console */
-        console.log("Fetched all hosts data with services")
-        /* eslint-enable no-console */
-        this.getAppsData([...this.state.hosts]) // Get a Shallow copy of this.state.hosts
+        AccountsQuery.query().then(({ data }) => this.setState({accounts:data, loadingState:false}));
     }
 
     async loadData() {
         const res = await NerdGraphQuery.query({
-          query: EC2_HOSTS_WITH_APPS,
+          query: fetchHosts(this.state.accountId),
         })
         const { loading, data, errors } = res;
         if (loading) {
@@ -70,7 +69,7 @@ export default class SyncTags extends React.Component {
     
     async getMoreEntityData(cursor) {
         const res = await NerdGraphQuery.query({
-          query: EC2_HOSTS_WITH_APPS,
+          query: fetchHosts(this.state.accountId),
           variables: { queryCursor: cursor },
         })
         const { loading, data, errors } = res;
@@ -233,12 +232,22 @@ export default class SyncTags extends React.Component {
         });
     }
 
+    onAccountSelect(e, props) {
+        this.setState({loadingState: true, loadError: false, hosts: null, presentationData: null, selectedApps: [], 
+            filters: {syncedDataOnly: false,notSyncedDataOnly:false} , accountId:props.value}, async () => {
+            await this.loadData();
+            console.log("Fetched all hosts data with services")
+            this.getAppsData([...this.state.hosts]) // Get a deep copy of this.state.hosts
+        });
+    }   
+
     render() {
-        const {loadError, loadingState, hosts, isUpdating, presentationData} = this.state;
+        const {loadError, loadingState, hosts, isUpdating, presentationData, accountId, accounts} = this.state;
         console.log(hosts)
+        console.log(this.state.accounts)
         if (loadingState) {
             return (
-                <Loader active size='large'>Checking your New Relic entities across all your accounts, this might take a while...</Loader>
+                <Loader active size='large'>Checking your data, this might take a while...</Loader>
             );
         }
         if (loadError) {
@@ -249,7 +258,7 @@ export default class SyncTags extends React.Component {
                 </Header> 
             );
         }
-        if (!hosts) {
+        if (accountId && !hosts) {
             return (
                 <Header as='h3' className='centered'>
                     Oops! it seems like you don't have any EC2 instances with running services.
@@ -264,27 +273,41 @@ export default class SyncTags extends React.Component {
         }
         return ( 
             <div style={{margin:"40px"}}>
-                <ModalMsg 
-                    help={this.state.showHelpMsg} 
-                    sync={this.state.showSyncMsg} 
-                    refresh={this.state.isUpdateComplete}
-                    nbApps={this.state.selectedApps.length}
-                    onClose={this.modalHandler} 
-                    onUpdate={this.updateTags}
+                <Dropdown
+                    placeholder='Select NR Account'
+                    name='account'
+                    fluid
+                    search
+                    selection
+                    value={this.state.accountId}
+                    onChange={this.onAccountSelect}
+                    options={accounts.map(val => ({key: val.id, text: val.name, value: val.id}))}
                 />
-                
-                <Filters 
-                    data={presentationData.header}
-                    onChange={this.filterChange}
-                    onActionClick={this.onActionSelect}
-                />
-                <Summary 
-                    data={presentationData.summary}
-                />
-                <Details 
-                    data={presentationData.details}
-                    onAppSelect={this.onAppSelect}
-                />
+                {accountId?
+                <>
+                    <ModalMsg 
+                        help={this.state.showHelpMsg} 
+                        sync={this.state.showSyncMsg} 
+                        refresh={this.state.isUpdateComplete}
+                        nbApps={this.state.selectedApps.length}
+                        onClose={this.modalHandler} 
+                        onUpdate={this.updateTags}
+                    />
+                    
+                    <Filters 
+                        data={presentationData.header}
+                        onChange={this.filterChange}
+                        onActionClick={this.onActionSelect}
+                    />
+                    <Summary 
+                        data={presentationData.summary}
+                    />
+                    <Details 
+                        data={presentationData.details}
+                        onAppSelect={this.onAppSelect}
+                    />
+                </>
+                :null}
             </div>
         );
     }

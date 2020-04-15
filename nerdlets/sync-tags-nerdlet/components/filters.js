@@ -56,9 +56,6 @@ export default class Filters extends React.Component {
             <Grid columns='equal' style={{margin:"40px 40px 0px 40px"}}>
                 <Grid.Row>
                     <Grid.Column>
-                        {this.dropdown('NR Account','account','accounts')}
-                    </Grid.Column>
-                    <Grid.Column>
                         {this.dropdown('AWS Region','aws.awsRegion','awsRegions')}
                     </Grid.Column>
                     <Grid.Column>

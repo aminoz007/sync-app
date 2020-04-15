@@ -17,7 +17,7 @@ export default class Summary extends React.Component {
                     Summary
                 </Header>
                 </Divider>
-                <Menu compact style={{marginBottom:"40px", marginTop:"25px"}}>
+                <Menu compact style={{marginBottom:"40px", marginTop:"25px", fontSize:"1em"}}>
                     <Menu.Item>
                         <Icon name='server' /> Number of running EC2 containing APM services
                         <Label color='teal' floating>
